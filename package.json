@@ -1,0 +1,56 @@
+{
+  "name": "miniprogram-hello-world",
+  "version": "0.0.1",
+  "description": "极其简单的微信小程序Hello World示例! A Simple WeChat Miniprogram Demo!",
+  "main": "index.js",
+  "scripts": {
+    "dev": "NODE_ENV=development gulp",
+    "staging": "NODE_ENV=staging gulp clean no-watch",
+    "production": "NODE_ENV=production gulp clean no-watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:xianyuxmu/miniprogram-hello-world.git"
+  },
+  "keywords": [
+    "小程序",
+    "miniprogram",
+    "微信",
+    "wechat",
+    "gulp"
+  ],
+  "browserslist": [
+    "last 3 versions",
+    "ios >= 8",
+    "android >= 4.1"
+  ],
+  "author": "xianyuxmu",
+  "license": "MIT",
+  "homepage": "https://github.com/xianyuxmu/miniprogram-hello-world",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "dateformat": "^3.0.3",
+    "del": "^3.0.0",
+    "git-rev": "^0.2.1",
+    "gulp": "^4.0.0",
+    "gulp-babel": "^7.0.1",
+    "gulp-cached": "^1.1.1",
+    "gulp-debug": "^4.0.0",
+    "gulp-if": "^2.0.2",
+    "gulp-imagemin": "^4.1.0",
+    "gulp-less": "^3.5.0",
+    "gulp-newer": "^1.3.0",
+    "gulp-postcss": "^7.0.0",
+    "gulp-qcloud-cos-upload": "^1.0.4",
+    "gulp-rename": "^1.2.2",
+    "gulp-replace": "^1.0.0",
+    "gulp-sftp": "^0.1.5",
+    "gulp-util": "^3.0.8",
+    "less-plugin-autoprefix": "^1.5.1",
+    "postcss-lazysprite": "^2.0.0",
+    "postcss-px2rpx": "0.0.4",
+    "yargs": "^11.0.0"
+  },
+  "dependencies": {}
+}

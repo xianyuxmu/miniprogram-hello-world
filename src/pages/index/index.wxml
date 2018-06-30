@@ -1,0 +1,19 @@
+<!--index.wxml-->
+<view class="container">
+  <view class="userinfo">
+    <button wx:if="{{!hasUserInfo && canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
+    <block wx:else>
+      <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
+      <text class="userinfo-nickname">{{userInfo.nickName}}</text>
+    </block>
+  </view>
+  <view class="usermotto">
+    <text class="user-motto">{{motto}}</text>
+  </view>
+  <view>雪碧图(大小由图片本身确定)</view>
+  <view class="icon-filetype icon-filetype-doc sprite-image">图片来自/src/assets/sprites/filetype/doc.png</view>
+  <view class="icon-filetype icon-filetype-pdf sprite-image">图片来自/src/assets/sprites/filetype/pdf.png</view>
+  <view class="assets-image-intro">下图来自/src/assets/images</view>
+  <image class="emoji" src="%ASSETS_IMG%/emoji.png" mode="cover"></image>
+</view>
+  

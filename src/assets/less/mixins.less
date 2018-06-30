@@ -1,0 +1,54 @@
+/*
+ * 文件说明：通用样式
+ **/
+
+// 文字截取
+.text-overflow() {
+	overflow: hidden;
+	white-space: normal;
+	text-overflow: ellipsis;
+	word-break: break-all;
+	word-wrap: normal;
+}
+
+.word-break() {
+	word-break: break-all;
+	word-wrap: break-word;
+	white-space: normal;
+}
+
+// No wrap
+.no-wrap() {
+	word-break: normal;
+	word-wrap: normal;
+	white-space: nowrap;
+}
+
+// 清除浮动
+.clearfix() {
+	&:before,
+	&:after {
+		content: " ";
+		display: table;
+	}
+	&:after {
+		clear: both;
+	}
+}
+
+// Center-align a block level element
+.center-block() {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+// CSS image replacement
+.hide-text() {
+	font-size: 0;
+	line-height: 0;
+	color: transparent;
+	text-shadow: none;
+	background-color: transparent;
+	border: 0;
+}
