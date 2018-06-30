@@ -2,7 +2,7 @@
 
 > 极其简单的微信小程序Hello World示例! A Simple WeChat Miniprogram Demo!
 
-![小程序运行截图](https://github.com/xianyuxmu/miniprogram-hello-world/raw/master/images/demo-screenshot.png)
+![小程序运行截图](https://github.com/xianyuxmu/miniprogram-hello-world/raw/master/images/demo-screenshot-preview.png)
 
 ### 安装
 
