@@ -300,7 +300,7 @@ function preTask(cb) {
 		// });
 		// resourceURLPrefix = config.assetsCDN + cdnPrefix + '/';
 
-		resourceURLPrefix = config.assetsCDN + 'xianyuxmu/miniprogram-hello-world/master/images/'; // demo说明：demo不上传CDN直接使用固定链接
+		resourceURLPrefix = config.assetsCDN + 'xianyuxmu/miniprogram-hello-world/raw/master/images/'; // demo说明：demo不上传CDN直接使用固定链接
 		
 		log(gutil.colors.green.bold('🌍 🌍 🌍 CDN: cdnVersionTag 👉🏻👉🏻👉🏻 ', cdnVersionTag));
 		log(gutil.colors.green.bold('🌍 🌍 🌍 CDN: cdnPrefix 👉🏻👉🏻👉🏻 ', cdnPrefix));
