@@ -9,6 +9,7 @@ var del = require('del');
 var replace = require('gulp-replace');
 var postcss = require('gulp-postcss');
 var qcloudCosUpload = require('gulp-qcloud-cos-upload');
+var aliyunOSS = require('gulp-aliyun-oss');
 var gulpif = require('gulp-if');
 var gutil = require('gulp-util');
 var newer = require('gulp-newer');
@@ -203,6 +204,31 @@ function qcloudCDN(cb) {
 		}));
 	} else {
 		log(gutil.colors.green.bold('🌍 🌍 🌍 CDN: 已禁用 ⛔️ ⛔️ ⛔️ '));
+	}
+	cb();
+}
+
+function aliyunOSSUpload(cb) {
+	if (config.enabledAliyunOSS) {
+		log(gutil.colors.green.bold('阿里云 🌍 🌍 🌍 CDN: 开始上传...📡 📡 📡'));
+		return gulp.src(paths.tmp.imgFilesRelative, {
+			cwd: paths.tmp.imgDir
+		})
+		.pipe(cache('aliyunOSSCache'))
+		.pipe(aliyunOSS({
+			accessKeyId: config.aliyunOSSConfig.accessKeyId,
+	        accessKeySecret: config.aliyunOSSConfig.accessKeySecret,
+	        region: config.aliyunOSSConfig.region,
+	        bucket: config.aliyunOSSConfig.bucket,
+	        prefix: cdnPrefix,
+	        ossOpt: {
+	            headers: {
+	              'Cache-Control': 'no-cache'
+	            }
+	        }
+		}));
+	} else {
+		log(gutil.colors.green.bold('阿里云 🌍 🌍 🌍 CDN: 已禁用 ⛔️ ⛔️ ⛔️ '));
 	}
 	cb();
 }

@@ -16,5 +16,15 @@ module.exports = {
 		}
 	},
 	// 静态资源CDN 域名，配合CDN 功能实用，线上请确保在mp管理端已经注册域名
-	"assetsCDN": "https://github.com/"
+	"assetsCDN": "https://alicdn.celier-china.com/", // 阿里云CDN域名
+	"enabledAliyunOSS": false, //是否开启阿里云OSS 上传功能
+	// 阿里云OSS配置
+	"aliyunOSSConfig": {
+		"accessKeyId": "xxxxxx",
+		"accessKeySecret": "xxxxxx",
+		"region": "oss-cn-shanghai",
+		"bucket": "xxxxxx",
+		"project": "miniprogram-hello-world", // 项目，顶层目录通过项目来做区分
+		"prefix": "images",
+	}
 };
