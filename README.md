@@ -54,6 +54,60 @@
 - [Gulp](https://gulpjs.com/): 任务自动化。任务包括：雪碧图生成、图片上传CDN、less文件预处理等。
 - **其他的都是原汁原味的。**
 
+### 功能
+
+#### 自动上传图片到CDN
+
+只要在相关的配置文件中写好配置，就能实现自动上传功能。目前支持腾讯云和阿里云。
+
+#### 全自动构建雪碧图及生成相应CSS
+
+由 [postcss-lazysprite](https://github.com/Jeff2Ma/postcss-lazysprite) 插件驱动。开发中准备好图片后仅仅写一句类似`@lazysprite "xxxx"`的代码，即可全自动构建雪碧图及生成相应CSS。
+
+```
+// Input: src/app.scss
+@lazysprite "filetype";
+
+// Output: dist/app.wxss
+.icon-filetype-doc {
+    background-image: url(../sprites/filetype.png);
+    background-position: 0 0;
+    width: 80px;
+    height: 80px;
+}
+
+.icon-filetype-pdf {
+    background-image: url(../sprites/filetype.png);
+    background-position: -90px 0;
+    width: 80px;
+    height: 80px;
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio:2) {
+    .icon-filetype-doc {
+        background-image: url(../sprites/filetype@2x.png);
+        background-position: 0 0;
+        background-size: 170px 170px;
+    }
+
+    .icon-filetype-pdf {
+        background-image: url(../sprites/filetype@2x.png);
+        background-position: -90px 0;
+        background-size: 170px 170px;
+    }
+}
+```
+#### 图片压缩
+
+实时压缩图片并采用增量方式防止被重复压缩。
+
+#### 自动添加文件指纹
+
+该功能基于 gulp 的 [gulp-rev](https://www.npmjs.com/package/gulp-rev) 和 [gulp-rev-collector](https://www.npmjs.com/package/gulp-rev-collector) 插件，能够为文件添加基于内容的指纹，并自动在 html 中替换文件名。
+
+
+
+
 ### 设计原则
 
 - **Simple, simple and simple.** 一切从简，非必要的引入。降低开发成本，提高项目健壮性。

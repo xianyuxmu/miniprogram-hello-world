@@ -9,6 +9,7 @@ var del = require('del');
 var replace = require('gulp-replace');
 var postcss = require('gulp-postcss');
 var qcloudCosUpload = require('gulp-qcloud-cos-upload');
+var aliyunOSS = require('gulp-aliyun-oss');
 var gulpif = require('gulp-if');
 var gutil = require('gulp-util');
 var newer = require('gulp-newer');
@@ -19,8 +20,10 @@ var lazysprite = require('postcss-lazysprite');
 // var LessAutoprefix = require('less-plugin-autoprefix');
 // var autoprefix = new LessAutoprefix(); // ⚠️ 注意：browser的兼容配置在package.json的browserslist，browserslist和Babel, ESLint及Stylelint共享
 // var argv  = require('yargs').argv; // 命令变量获取。详情：https://www.npmjs.com/package/yargs
-var git = require('git-rev');
 var dateformat = require('dateformat');
+var rev = require('gulp-rev'); // 生成文件hash，存储在 ./rev-manifest.json
+var revCollector = require('gulp-rev-collector'); // 将文件路径替换成gulp-rev生成的hash文件名
+
 var config = require('./config.js');
 
 // 相关路径配置
@@ -42,6 +45,7 @@ var paths = {
 		baseDir: 'dist',
 		imgDir: 'dist/image',
 		wxssFiles: 'dist/**/*.wxss',
+		wxmlFiles: 'dist/**/*.wxml',
 	},
 	tmp: {
 		baseDir: 'tmp',
@@ -94,7 +98,10 @@ function assetsImgMin() {
 			progressive: true,
 			svgoPlugins: [{removeViewBox: false}]
 		}))
+		.pipe(rev()) // 文件指纹hash
 		.pipe(gulp.dest(paths.tmp.imgDir))
+		.pipe(rev.manifest())
+		.pipe(gulp.dest('./'))
 }
 
 // js编译：【暂时不使用，因为小程序本身支持ES6转ES5】
@@ -119,6 +126,15 @@ function lessCompile() {
 		.pipe(replace('.less', '.wxss'))
 		.pipe(replace('%ASSETS_IMG%/', resourceURLPrefix))
 		.pipe(replace('src/assets/images/', resourceURLPrefix))
+		.pipe(gulp.dest(paths.dist.baseDir))
+}
+
+// 文件指纹哈希替换rev
+function revWork() {
+	return gulp.src(['./rev-manifest.json', paths.dist.wxssFiles, paths.dist.wxmlFiles])
+		.pipe(revCollector({
+			replaceReved: true // 替换已经被替换过的链接
+		}))
 		.pipe(gulp.dest(paths.dist.baseDir))
 }
 
@@ -207,6 +223,31 @@ function qcloudCDN(cb) {
 	cb();
 }
 
+function aliyunOSSUpload(cb) {
+	if (config.enabledAliyunOSS) {
+		log(gutil.colors.green.bold('阿里云 🌍 🌍 🌍 CDN: 开始上传...📡 📡 📡'));
+		return gulp.src(paths.tmp.imgFilesRelative, {
+			cwd: paths.tmp.imgDir
+		})
+		.pipe(cache('aliyunOSSCache'))
+		.pipe(aliyunOSS({
+			accessKeyId: config.aliyunOSSConfig.accessKeyId,
+	        accessKeySecret: config.aliyunOSSConfig.accessKeySecret,
+	        region: config.aliyunOSSConfig.region,
+	        bucket: config.aliyunOSSConfig.bucket,
+	        prefix: cdnPrefix,
+	        ossOpt: {
+	            headers: {
+	              'Cache-Control': 'no-cache'
+	            }
+	        }
+		}));
+	} else {
+		log(gutil.colors.green.bold('阿里云 🌍 🌍 🌍 CDN: 已禁用 ⛔️ ⛔️ ⛔️ '));
+	}
+	cb();
+}
+
 
 var watchHandler = function (type, file) {
 	var extname = path.extname(file);
@@ -231,6 +272,7 @@ var watchHandler = function (type, file) {
 			imageMin();
 			assetsImgMin();
 			qcloudCDN();
+			aliyunOSSUpload();
 			wxmlImgRewrite();
 		}
 	}
@@ -291,23 +333,27 @@ function commonInfo(cb) {
 
 // 预先任务：先于其他任务执行，用于：提早准备构建相关变量
 function preTask(cb) {
-	git.short(function (commitHashTag){	
-		// cdnVersionTag = dateformat(new Date(), 'yyyymmdd') + '-' + commitHashTag; // // 通过"<日期>-<Git Commit Hash>"标记cdn上传版本，解决cdn缓存问题
-		// cdnPrefix = getPrefixByEnvironment({
-		// 	project: config.qcloud.project,
-		// 	defaultPrefix: config.qcloud.prefix,
-		// 	cdnVersionTag: cdnVersionTag
-		// });
-		// resourceURLPrefix = config.assetsCDN + cdnPrefix + '/';
+	var cdnConfig = config.enabledAliyunOSS
+		? config.aliyunOSSConfig
+		: (
+			config.enabledQcloud
+			? config.qcloud
+			: null
+		);
 
-		resourceURLPrefix = config.assetsCDN + 'xianyuxmu/miniprogram-hello-world/raw/master/images/'; // demo说明：demo不上传CDN直接使用固定链接
-		
-		log(gutil.colors.green.bold('🌍 🌍 🌍 CDN: cdnVersionTag 👉🏻👉🏻👉🏻 ', cdnVersionTag));
-		log(gutil.colors.green.bold('🌍 🌍 🌍 CDN: cdnPrefix 👉🏻👉🏻👉🏻 ', cdnPrefix));
-		log(gutil.colors.green.bold('🌍 🌍 🌍 CDN: resourceURLPrefix 👉🏻👉🏻👉🏻 ', resourceURLPrefix));
+	if(!cdnConfig) {
+		log(gutil.colors.red.bold.underline('⛔️ ⛔️ ⛔️ 无CDN配置！！！⛔️ ⛔️ ⛔️ '));
+		return ;
+	}
 
-		cb();
-	});
+	cdnPrefix = cdnConfig.project + '/' + cdnConfig.prefix; // 项目名/前缀
+
+	resourceURLPrefix = config.assetsCDN + cdnPrefix + '/';
+	
+	log(gutil.colors.green.bold('🌍 🌍 🌍 CDN: cdnPrefix 👉🏻👉🏻👉🏻 ', cdnPrefix));
+	log(gutil.colors.green.bold('🌍 🌍 🌍 CDN: resourceURLPrefix 👉🏻👉🏻👉🏻 ', resourceURLPrefix));
+
+	cb();
 }
 
 // 默认任务
@@ -315,6 +361,7 @@ gulp.task('default', gulp.series(
 	preTask,
 	cleanTmp,
 	copyBasicFiles,
+	assetsImgMin,
 	gulp.parallel(
 		// jsCompile,
 		lessCompile,
@@ -322,7 +369,7 @@ gulp.task('default', gulp.series(
 		copyWXML
 	),
 	wxmlImgRewrite,
-	assetsImgMin,
+	revWork,
 	qcloudCDN,
 	watch,
 	commonInfo
@@ -333,6 +380,7 @@ gulp.task('no-watch', gulp.series(
 	preTask,
 	cleanTmp,
 	copyBasicFiles,
+	assetsImgMin,
 	gulp.parallel(
 		// jsCompile,
 		lessCompile,
@@ -340,8 +388,9 @@ gulp.task('no-watch', gulp.series(
 		copyWXML
 	),
 	wxmlImgRewrite,
-	assetsImgMin,
+	revWork,
 	qcloudCDN,
+	aliyunOSSUpload,
 	commonInfo
 ));
 
